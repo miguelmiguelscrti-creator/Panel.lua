@@ -1,0 +1,496 @@
+--[[
+    PAINEL MIGUEL SCRIPT • ESTILO ROBLOX • DELTA
+    Administrador: Dormindo
+    Regras de Cor:
+    • ESP RGB: Linhas + Esqueleto = Colorido
+    • Barra de Vida = Sempre Verde
+    • Nomes = Sempre Brancos
+    ✅ FUNCIONA APENAS EM JOGOS FPS
+]]
+
+-- Serviços essenciais
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+
+-- Configurações Principais
+local Config = {
+    Senha = "Miguel Script",
+    AdminTexto = "Administrador: Dormindo",
+    -- Aimbot
+    AimbotLegit = false,
+    KeyBind = "MouseButton1",
+    AimbotRage = false,
+    IgnorarDerrubados = false,
+    RemoverRecuo = false,
+    AtivarDrawFOV = false,
+    RaioFOV = 250,
+    ChestRate = 100,
+    SnapLineSilent = false,
+    FOVColor = false,
+    -- ESP
+    AtivarESPs = true,
+    ESPLine = true,
+    ESPName = true,
+    ESPDistance = true,
+    ESPSkeleton = true,
+    ESPVida = true,
+    ESPBox = true,
+    ESPFilledBox = true,
+    ESPArmas = true,
+    ESPInimigos = true,
+    ESPRGB = true,
+    PosicaoLinha = "Top",
+    PosicaoVida = "Left",
+    EstiloBox = "Corner",
+    TamanhoTexto = 12,
+    GrossuraLinha = 1,
+    ESPDistanciaMax = 120,
+    -- Memory/Exploits
+    DownLocalPlayer = false,
+    KeyDown = "None",
+    SpeedHack = false,
+    KeySpeedHack = "None",
+    FastMedkit = false
+}
+
+-- Verifica se é jogo de FPS
+local function IsFPS()
+    for _, obj in ipairs(Workspace:GetDescendants()) do
+        if obj:IsA("Tool") and (obj.Name:lower():find("gun") or obj.Name:lower():find("arma") or obj.Name:lower():find("rifle")) then
+            return true
+        end
+    end
+    return false
+end
+
+-- Função auxiliar: criar tela
+local function CriarTela()
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "MiguelScript"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.Parent = CoreGui
+
+    -- Botão flutuante para abrir/fechar
+    local BtnAbrir = Instance.new("TextButton")
+    BtnAbrir.Size = UDim2.new(0, 50, 0, 50)
+    BtnAbrir.Position = UDim2.new(0.02, 0, 0.4, 0)
+    BtnAbrir.Text = "⚡"
+    BtnAbrir.TextColor3 = Color3.new(1,1,1)
+    BtnAbrir.Font = Enum.Font.SourceSansBold
+    BtnAbrir.TextSize = 24
+    BtnAbrir.BackgroundColor3 = Color3.fromRGB(220,40,40)
+    BtnAbrir.BorderSizePixel = 2
+    BtnAbrir.BorderColor3 = Color3.new(1,1,1)
+    BtnAbrir.Visible = false
+    BtnAbrir.Parent = ScreenGui
+
+    -- Painel Principal
+    local Painel = Instance.new("Frame")
+    Painel.Size = UDim2.new(0, 850, 0, 550)
+    Painel.Position = UDim2.new(0.1,0,0.15,0)
+    Painel.BackgroundColor3 = Color3.fromRGB(25,25,25)
+    Painel.BorderSizePixel = 2
+    Painel.BorderColor3 = Color3.fromRGB(220,40,40)
+    Painel.Visible = false
+    Painel.Parent = ScreenGui
+
+    -- Cabeçalho
+    local Header = Instance.new("Frame")
+    Header.Size = UDim2.new(1,0,0,40)
+    Header.BackgroundColor3 = Color3.fromRGB(35,35,35)
+    Header.BorderSizePixel = 1
+    Header.BorderColor3 = Color3.fromRGB(60,60,60)
+    Header.Parent = Painel
+
+    local Titulo = Instance.new("TextLabel")
+    Titulo.Size = UDim2.new(0,200,1,0)
+    Titulo.Position = UDim2.new(0.02,0,0,0)
+    Titulo.Text = "MIGUEL SCRIPT"
+    Titulo.TextColor3 = Color3.fromRGB(220,40,40)
+    Titulo.Font = Enum.Font.SourceSansBold
+    Titulo.TextSize = 24
+    Titulo.BackgroundTransparency = 1
+    Titulo.Parent = Header
+
+    -- Status Administrador
+    local AdminLabel = Instance.new("TextLabel")
+    AdminLabel.Size = UDim2.new(0,250,0,25)
+    AdminLabel.Position = UDim2.new(0.02,0,1,10)
+    AdminLabel.Text = Config.AdminTexto
+    AdminLabel.TextColor3 = Color3.fromRGB(180,180,180)
+    AdminLabel.Font = Enum.Font.SourceSans
+    AdminLabel.TextSize = 16
+    AdminLabel.BackgroundTransparency = 1
+    AdminLabel.Parent = Painel
+
+    -- Menu Lateral
+    local Menu = Instance.new("Frame")
+    Menu.Size = UDim2.new(0,160,1,-50)
+    Menu.Position = UDim2.new(0,0,0,45)
+    Menu.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    Menu.BorderSizePixel = 1
+    Menu.BorderColor3 = Color3.fromRGB(50,50,50)
+    Menu.Parent = Painel
+
+    local Conteudo = Instance.new("Frame")
+    Conteudo.Size = UDim2.new(1,-170,1,-50)
+    Conteudo.Position = UDim2.new(0,165,0,45)
+    Conteudo.BackgroundColor3 = Color3.fromRGB(28,28,28)
+    Conteudo.BorderSizePixel = 1
+    Conteudo.BorderColor3 = Color3.fromRGB(50,50,50)
+    Conteudo.Parent = Painel
+
+    -- Abas
+    local Abas = {
+        {Nome = "🎯 Aimbot", Id = "aimbot"},
+        {Nome = "👁️ Esps", Id = "esps"},
+        {Nome = "💾 Memory", Id = "memory"}
+    }
+    local Botoes = {}
+
+    for i, aba in ipairs(Abas) do
+        local Btn = Instance.new("TextButton")
+        Btn.Size = UDim2.new(0.9,0,0,35)
+        Btn.Position = UDim2.new(0.05,0,0,(i-1)*40 + 10)
+        Btn.Text = aba.Nome
+        Btn.TextColor3 = Color3.new(0.9,0.9,0.9)
+        Btn.Font = Enum.Font.SourceSansBold
+        Btn.TextSize = 18
+        Btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+        Btn.BorderSizePixel = 0
+        Btn.AutoButtonColor = false
+        Btn.Parent = Menu
+        Botoes[aba.Id] = Btn
+
+        -- Conteúdo da aba
+        local FrameAba = Instance.new("Frame")
+        FrameAba.Name = "Aba_"..aba.Id
+        FrameAba.Size = UDim2.new(1,0,1,0)
+        FrameAba.BackgroundTransparency = 1
+        FrameAba.Visible = (i == 1)
+        FrameAba.Parent = Conteudo
+
+        -- Preencher Aba Aimbot
+        if aba.Id == "aimbot" then
+            local Opcoes = {
+                {"Aimbot Legit", Config.AimbotLegit},
+                {"KeyBind", Config.KeyBind},
+                {"Aimbot Rage", Config.AimbotRage},
+                {"Ignorar Derrubados", Config.IgnorarDerrubados},
+                {"Remover Recuo", Config.RemoverRecuo},
+                {"Ativar Draw FOV", Config.AtivarDrawFOV}
+            }
+            for idx, op in ipairs(Opcoes) do
+                local Linha = Instance.new("Frame")
+                Linha.Size = UDim2.new(0.45,0,0,35)
+                Linha.Position = UDim2.new(0.02,0,0,(idx-1)*40 + 10)
+                Linha.BackgroundColor3 = Color3.fromRGB(45,45,45)
+                Linha.BorderSizePixel = 1
+                Linha.BorderColor3 = Color3.fromRGB(60,60,60)
+                Linha.Parent = FrameAba
+
+                local Nome = Instance.new("TextLabel")
+                Nome.Size = UDim2.new(0.7,0,1,0)
+                Nome.Position = UDim2.new(0.05,0,0,0)
+                Nome.Text = op[1]
+                Nome.TextColor3 = Color3.new(0.95,0.95,0.95)
+                Nome.Font = Enum.Font.SourceSans
+                Nome.TextSize = 16
+                Nome.BackgroundTransparency = 1
+                Nome.TextXAlignment = Enum.TextXAlignment.Left
+                Nome.Parent = Linha
+
+                local Valor = Instance.new("TextLabel")
+                Valor.Size = UDim2.new(0.25,0,1,0)
+                Valor.Position = UDim2.new(0.72,0,0,0)
+                Valor.Text = tostring(op[2])
+                Valor.TextColor3 = Color3.fromRGB(220,40,40)
+                Valor.Font = Enum.Font.SourceSansBold
+                Valor.TextSize = 16
+                Valor.BackgroundTransparency = 1
+                Valor.TextXAlignment = Enum.TextXAlignment.Right
+                Valor.Parent = Linha
+            end
+
+            -- Barras de configuração
+            local ConfigFrame = Instance.new("Frame")
+            ConfigFrame.Size = UDim2.new(0.45,0,0,180)
+            ConfigFrame.Position = UDim2.new(0.52,0,0,10)
+            ConfigFrame.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            ConfigFrame.BorderSizePixel = 1
+            ConfigFrame.BorderColor3 = Color3.fromRGB(60,60,60)
+            ConfigFrame.Parent = FrameAba
+
+            local TituloConfig = Instance.new("TextLabel")
+            TituloConfig.Size = UDim2.new(1,0,0,25)
+            TituloConfig.Text = "Configs"
+            TituloConfig.TextColor3 = Color3.fromRGB(220,40,40)
+            TituloConfig.Font = Enum.Font.SourceSansBold
+            TituloConfig.TextSize = 18
+            TituloConfig.BackgroundTransparency = 1
+            TituloConfig.Parent = ConfigFrame
+
+            -- Barra FOV
+            local BarraFOV = Instance.new("Frame")
+            BarraFOV.Size = UDim2.new(0.9,0,0,30)
+            BarraFOV.Position = UDim2.new(0.05,0,0,30)
+            BarraFOV.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            BarraFOV.BorderSizePixel = 1
+            BarraFOV.BorderColor3 = Color3.fromRGB(70,70,70)
+            BarraFOV.Parent = ConfigFrame
+
+            local LabelFOV = Instance.new("TextLabel")
+            LabelFOV.Size = UDim2.new(0.4,0,1,0)
+            LabelFOV.Position = UDim2.new(0.02,0,0,0)
+            LabelFOV.Text = "Raio do FOV"
+            LabelFOV.TextColor3 = Color3.new(0.9,0.9,0.9)
+            LabelFOV.Font = Enum.Font.SourceSans
+            LabelFOV.TextSize = 14
+            LabelFOV.BackgroundTransparency = 1
+            LabelFOV.TextXAlignment = Enum.TextXAlignment.Left
+            LabelFOV.Parent = BarraFOV
+
+            local ValorFOV = Instance.new("TextLabel")
+            ValorFOV.Size = UDim2.new(0.2,0,1,0)
+            ValorFOV.Position = UDim2.new(0.78,0,0,0)
+            ValorFOV.Text = tostring(Config.RaioFOV)
+            ValorFOV.TextColor3 = Color3.new(1,1,1)
+            ValorFOV.Font = Enum.Font.SourceSansBold
+            ValorFOV.TextSize = 14
+            ValorFOV.BackgroundTransparency = 1
+            ValorFOV.Parent = BarraFOV
+
+            local PreencheFOV = Instance.new("Frame")
+            PreencheFOV.Size = UDim2.new(Config.RaioFOV/300,0,0.6,0)
+            PreencheFOV.Position = UDim2.new(0.02,0,0.2,0)
+            PreencheFOV.BackgroundColor3 = Color3.fromRGB(220,40,40)
+            PreencheFOV.BorderSizePixel = 0
+            PreencheFOV.Parent = BarraFOV
+
+            -- Barra Chest Rate
+            local BarraChest = Instance.new("Frame")
+            BarraChest.Size = UDim2.new(0.9,0,0,30)
+            BarraChest.Position = UDim2.new(0.05,0,0,70)
+            BarraChest.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            BarraChest.BorderSizePixel = 1
+            BarraChest.BorderColor3 = Color3.fromRGB(70,70,70)
+            BarraChest.Parent = ConfigFrame
+
+            local LabelChest = Instance.new("TextLabel")
+            LabelChest.Size = UDim2.new(0.4,0,1,0)
+            LabelChest.Position = UDim2.new(0.02,0,0,0)
+            LabelChest.Text = "Chest Rate (ms)"
+            LabelChest.TextColor3 = Color3.new(0.9,0.9,0.9)
+            LabelChest.Font = Enum.Font.SourceSans
+            LabelChest.TextSize = 14
+            LabelChest.BackgroundTransparency = 1
+            LabelChest.TextXAlignment = Enum.TextXAlignment.Left
+            LabelChest.Parent = BarraChest
+
+            local ValorChest = Instance.new("TextLabel")
+            ValorChest.Size = UDim2.new(0.2,0,1,0)
+            ValorChest.Position = UDim2.new(0.78,0,0,0)
+            ValorChest.Text = tostring(Config.ChestRate)
+            ValorChest.TextColor3 = Color3.new(1,1,1)
+            ValorChest.Font = Enum.Font.SourceSansBold
+            ValorChest.TextSize = 14
+            ValorChest.BackgroundTransparency = 1
+            ValorChest.Parent = BarraChest
+
+            local PreencheChest = Instance.new("Frame")
+            PreencheChest.Size = UDim2.new(Config.ChestRate/200,0,0.6,0)
+            PreencheChest.Position = UDim2.new(0.02,0,0.2,0)
+            PreencheChest.BackgroundColor3 = Color3.fromRGB(220,40,40)
+            PreencheChest.BorderSizePixel = 0
+            PreencheChest.Parent = BarraChest
+        end
+
+        -- Aba ESPs
+        if aba.Id == "esps" then
+            -- Botões World/Colors
+            local BtnWorld = Instance.new("TextButton")
+            BtnWorld.Size = UDim2.new(0.2,0,0,35)
+            BtnWorld.Position = UDim2.new(0.02,0,0,10)
+            BtnWorld.Text = "World"
+            BtnWorld.TextColor3 = Color3.new(1,1,1)
+            BtnWorld.Font = Enum.Font.SourceSansBold
+            BtnWorld.TextSize = 18
+            BtnWorld.BackgroundColor3 = Color3.fromRGB(220,40,40)
+            BtnWorld.BorderSizePixel = 0
+            BtnWorld.AutoButtonColor = false
+            BtnWorld.Parent = FrameAba
+
+            local BtnColors = Instance.new("TextButton")
+            BtnColors.Size = UDim2.new(0.2,0,0,35)
+            BtnColors.Position = UDim2.new(0.23,0,0,10)
+            BtnColors.Text = "Colors"
+            BtnColors.TextColor3 = Color3.new(0.8,0.8,0.8)
+            BtnColors.Font = Enum.Font.SourceSansBold
+            BtnColors.TextSize = 18
+            BtnColors.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            BtnColors.BorderSizePixel = 0
+            BtnColors.AutoButtonColor = false
+            BtnColors.Parent = FrameAba
+
+            -- Opções ESP
+            local OpcoesESP = {
+                {"Ativar Esps", Config.AtivarESPs},
+                {"Esp Line", Config.ESPLine},
+                {"Esp Name", Config.ESPName},
+                {"Esp Distance", Config.ESPDistance},
+                {"Esp Skeleton", Config.ESPSkeleton},
+                {"Esp Vida", Config.ESPVida},
+                {"Esp Box", Config.ESPBox},
+                {"Esp FilledBox", Config.ESPFilledBox},
+                {"Esp Armas", Config.ESPArmas},
+                {"Esp Inimigos", Config.ESPInimigos},
+                {"Esp RGB", Config.ESPRGB}
+            }
+            for idx, op in ipairs(OpcoesESP) do
+                local Linha = Instance.new("Frame")
+                Linha.Size = UDim2.new(0.45,0,0,32)
+                Linha.Position = UDim2.new(0.02,0,0,50 + (idx-1)*35)
+                Linha.BackgroundColor3 = Color3.fromRGB(45,45,45)
+                Linha.BorderSizePixel = 1
+                Linha.BorderColor3 = Color3.fromRGB(60,60,60)
+                Linha.Parent = FrameAba
+
+                local Nome = Instance.new("TextLabel")
+                Nome.Size = UDim2.new(0.7,0,1,0)
+                Nome.Position = UDim2.new(0.05,0,0,0)
+                Nome.Text = op[1]
+                Nome.TextColor3 = Color3.new(0.95,0.95,0.95)
+                Nome.Font = Enum.Font.SourceSans
+                Nome.TextSize = 16
+                Nome.BackgroundTransparency = 1
+                Nome.TextXAlignment = Enum.TextXAlignment.Left
+                Nome.Parent = Linha
+
+                -- Toggle
+                local Toggle = Instance.new("Frame")
+                Toggle.Size = UDim2.new(0,40,0,20)
+                Toggle.Position = UDim2.new(0.85,0,0.18,0)
+                Toggle.BackgroundColor3 = op[2] and Color3.fromRGB(220,40,40) or Color3.fromRGB(70,70,70)
+                Toggle.BorderSizePixel = 0
+                Toggle.Parent = Linha
+
+                local Circulo = Instance.new("Frame")
+                Circulo.Size = UDim2.new(0,16,0,16)
+                Circulo.Position = op[2] and UDim2.new(0.55,0,0.1,0) or UDim2.new(0.05,0,0.1,0)
+                Circulo.BackgroundColor3 = Color3.new(1,1,1)
+                Circulo.BorderSizePixel = 0
+                Circulo.Parent = Toggle
+            end
+
+            -- Configs ESP
+            local ConfigESP = Instance.new("Frame")
+            ConfigESP.Size = UDim2.new(0.45,0,0,280)
+            ConfigESP.Position = UDim2.new(0.52,0,0,50)
+            ConfigESP.BackgroundColor3 = Color3.fromRGB(40,40,40)
+            ConfigESP.BorderSizePixel = 1
+            ConfigESP.BorderColor3 = Color3.fromRGB(60,60,60)
+            ConfigESP.Parent = FrameAba
+
+            local TituloESP = Instance.new("TextLabel")
+            TituloESP.Size = UDim2.new(1,0,0,25)
+            TituloESP.Text = "Configs"
+            TituloESP.TextColor3 = Color3.fromRGB(220,40,40)
+            TituloESP.Font = Enum.Font.SourceSansBold
+            TituloESP.TextSize = 18
+            TituloESP.BackgroundTransparency = 1
+            TituloESP.Parent = ConfigESP
+
+            -- Posições e Estilo
+            local Posicoes = {
+                {"Posicao Linha", Config.PosicaoLinha},
+                {"Posicao Vida", Config.PosicaoVida},
+                {"Estilo Box", Config.EstiloBox}
+            }
+            for idx, pos in ipairs(Posicoes) do
+                local Linha = Instance.new("Frame")
+                Linha.Size = UDim2.new(0.9,0,0,30)
+                Linha.Position = UDim2.new(0.05,0,0,30 + (idx-1)*35)
+                Linha.BackgroundColor3 = Color3.fromRGB(48,48,48)
+                Linha.BorderSizePixel = 1
+                Linha.BorderColor3 = Color3.fromRGB(65,65,65)
+                Linha.Parent = ConfigESP
+
+                local Nome = Instance.new("TextLabel")
+                Nome.Size = UDim2.new(0.65,0,1,0)
+                Nome.Position = UDim2.new(0.05,0,0,0)
+                Nome.Text = pos[1]
+                Nome.TextColor3 = Color3.new(0.9,0.9,0.9)
+                Nome.Font = Enum.Font.SourceSans
+                Nome.TextSize = 15
+                Nome.BackgroundTransparency = 1
+                Nome.TextXAlignment = Enum.TextXAlignment.Left
+                Nome.Parent = Linha
+
+                local Valor = Instance.new("TextLabel")
+                Valor.Size = UDim2.new(0.3,0,1,0)
+                Valor.Position = UDim2.new(0.7,0,0,0)
+                Valor.Text = pos[2]
+                Valor.TextColor3 = Color3.fromRGB(220,40,40)
+                Valor.Font = Enum.Font.SourceSansBold
+                Valor.TextSize = 15
+                Valor.BackgroundTransparency = 1
+                Valor.TextXAlignment = Enum.TextXAlignment.Right
+                Valor.Parent = Linha
+            end
+
+            -- Barras ESP
+            local BarraTexto = Instance.new("Frame")
+            BarraTexto.Size = UDim2.new(0.9,0,0,30)
+            BarraTexto.Position = UDim2.new(0.05,0,0,135)
+            BarraTexto.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            BarraTexto.BorderSizePixel = 1
+            BarraTexto.BorderColor3 = Color3.fromRGB(70,70,70)
+            BarraTexto.Parent = ConfigESP
+
+            local LabelTexto = Instance.new("TextLabel")
+            LabelTexto.Size = UDim2.new(0.4,0,1,0)
+            LabelTexto.Position = UDim2.new(0.02,0,0,0)
+            LabelTexto.Text = "Tamanho Texto"
+            LabelTexto.TextColor3 = Color3.new(0.9,0.9,0.9)
+            LabelTexto.Font = Enum.Font.SourceSans
+            LabelTexto.TextSize = 14
+            LabelTexto.BackgroundTransparency = 1
+            LabelTexto.TextXAlignment = Enum.TextXAlignment.Left
+            LabelTexto.Parent = BarraTexto
+
+            local ValorTexto = Instance.new("TextLabel")
+            ValorTexto.Size = UDim2.new(0.2,0,1,0)
+            ValorTexto.Position = UDim2.new(0.78,0,0,0)
+            ValorTexto.Text = tostring(Config.TamanhoTexto)
+            ValorTexto.TextColor3 = Color3.new(1,1,1)
+            ValorTexto.Font = Enum.Font.SourceSansBold
+            ValorTexto.TextSize = 14
+            ValorTexto.BackgroundTransparency = 1
+            ValorTexto.Parent = BarraTexto
+
+            local PreencheTexto = Instance.new("Frame")
+            PreencheTexto.Size = UDim2.new(Config.TamanhoTexto/20,0,0.6,0)
+            PreencheTexto.Position = UDim2.new(0.02,0,0.2,0)
+            PreencheTexto.BackgroundColor3 = Color3.fromRGB(220,40,40)
+            PreencheTexto.BorderSizePixel = 0
+            PreencheTexto.Parent = BarraTexto
+
+            -- Grossura Linha
+            local BarraGrossura = Instance.new("Frame")
+            BarraGrossura.Size = UDim2.new(0.9,0,0,30)
+            BarraGrossura.Position = UDim2.new(0.05,0,0,175)
+            BarraGrossura.BackgroundColor3 = Color3.fromRGB(50,50,50)
+            BarraGrossura.BorderSizePixel = 1
+            BarraGrossura.BorderColor3 = Color3.fromRGB(70,70,70)
+            BarraGrossura.Parent = ConfigESP
+
+            local LabelGrossura = Instance.new("TextLabel")
+            LabelGrossura.Size = UDim2.new(0.4,0,1,0)
+            LabelGrossura.Position = UDim2.new(0.02,0,0,0)
+            LabelGrossura.Text = "Grossura Linha"
+            LabelGrossura.TextColor3 = Color3.new(0.9,0.9,0.9)
+            LabelGrossura.Font = E
