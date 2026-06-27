@@ -1,0 +1,2 @@
+# Panel.lua
+Scrti fps
